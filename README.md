@@ -9,10 +9,12 @@ Build
 
 Build with:
 
-    rustc brainfuck.rs
+    cargo build
 
 
 Run
 ===
+
+    cargo run
 
 

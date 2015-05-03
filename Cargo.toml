@@ -1,0 +1,13 @@
+[package]
+
+name = "brainfuck"
+version = "0.0.1"
+authors = ["Erik Swanson <theerikswanson@gmail.com>"]
+
+[dependencies]
+getopts = "0.2"
+
+[[bin]]
+
+name = "brainfuck"
+path = "src/brainfuck.rs"
