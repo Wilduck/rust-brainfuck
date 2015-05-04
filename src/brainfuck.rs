@@ -2,40 +2,74 @@ extern crate getopts;
 use getopts::Options;
 use std::env;
 
-fn do_work(inp: &str, out: Option<String>) {
-    println!("{}", inp);
-    match out {
-        Some(x) => println!("{}", x),
-        None => println!("No Output"),
-    };
-}
-
-fn print_usage(program: &str, opts: Options) {
-    let brief = format!("Usage {} [options]", program);
-    print!("{}", opts.usage(&brief));
+enum Operator {
+    IncCell,     // +
+    DecCell,     // -
+    IncPtr,      // >
+    DecPtr,      // <
+    Print,       // .
+    Read,        // ,
+    JumpZero,    // [
+    Loop,        // ]
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let program = args[0].clone();
+    let opts = create_options();
+    let (source, input) = parse_args(opts, args);
+    println!("Running program: \n{}\n", source);
+    println!("With input: \n{}\n", input);
+    let tokens = tokenize(source);
+    let blah = parse(tokens, input);
+    println!("{}", blah.len());
+}
 
-    let mut opts = Options::new();
-    opts.optopt("o", "", "set output filename", "NAME");
-    opts.optflag("h", "help", "print the help menu");
+fn parse_args(opts: Options, args: Vec<String>) -> (String, String) {
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => { m }
         Err(f) => { panic!(f.to_string()) }
     };
-    if matches.opt_present("h") {
-        print_usage(&program, opts);
-        return;
-    }
-    let output = matches.opt_str("o");
-    let input = if !matches.free.is_empty() {
-        matches.free[0].clone()
-    } else {
-        print_usage(&program, opts);
-        return;
+    let source = match matches.opt_str("s") {
+        Some(s) => s,
+        None => "".to_string(),
     };
-    do_work(&input, output);
+    let input = match matches.opt_str("i") {
+        Some(i) => i,
+        None => "".to_string(),
+    };
+    (source, input)
+}
+
+fn create_options() -> (Options) {
+    let mut opts = Options::new();
+    opts.optopt("s", "source", "Source string", "SOURCE");
+    opts.optopt("i", "input", "Input string", "INPUT");
+    opts
+}
+
+fn tokenize(source: String) -> Vec<Operator> {
+    let mut tokens: Vec<Operator> = Vec::new();
+    for c in source.chars() {
+        let o: Option<Operator> = match c {
+            '+' => Some(Operator::IncCell),
+            '-' => Some(Operator::DecCell),
+            '>' => Some(Operator::IncPtr),
+            '<' => Some(Operator::DecPtr),
+            '.' => Some(Operator::Print),
+            ',' => Some(Operator::Read),
+            '[' => Some(Operator::JumpZero),
+            ']' => Some(Operator::Loop),
+            _ => None
+        };
+        match o {
+            Some(operator) => tokens.push(operator),
+            None => {}
+        };
+    };
+    tokens
+}
+
+fn parse(tokens: Vec<Operator>, input: String) -> Vec<i8> {
+    let x = std::iter::repeat(0).take(30000).collect::<Vec<i8>>();
+    x
 }
