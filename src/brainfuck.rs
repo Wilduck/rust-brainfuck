@@ -1,7 +1,9 @@
 extern crate getopts;
 use getopts::Options;
 use std::env;
+use std::char;
 
+#[derive(PartialEq)]
 enum Operator {
     IncCell,     // +
     DecCell,     // -
@@ -13,6 +15,11 @@ enum Operator {
     Loop,        // ]
 }
 
+enum Status {
+    Success,
+    Failure(String),
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let opts = create_options();
@@ -21,6 +28,7 @@ fn main() {
     println!("With input: \n{}\n", input);
     let tokens = tokenize(source);
     let blah = parse(tokens, input);
+    println!("");
     println!("{}", blah.len());
 }
 
@@ -69,7 +77,80 @@ fn tokenize(source: String) -> Vec<Operator> {
     tokens
 }
 
-fn parse(tokens: Vec<Operator>, input: String) -> Vec<i8> {
-    let x = std::iter::repeat(0).take(30000).collect::<Vec<i8>>();
-    x
+fn parse(tokens: Vec<Operator>, input: String) -> [u8; 30000] {
+    let instructions = tokens.len();
+    // let mut memory = std::iter::repeat(0).take(30000).collect::<Vec<u8>>();
+    let mut memory: [u8; 30000] = [0; 30000];
+    let input_bytes = input.as_bytes();
+    let mut code_loc: usize = 0;
+    let mut input_loc: usize = 0;
+    let mut loop_loc: usize = 0;
+    let mut data_loc: usize = 0;
+    while code_loc < instructions {
+        let ref operator = tokens[code_loc];
+        // let cop_op = *operator.clone();
+        // println!("{}", printable_op(cop_op));
+        match *operator {
+            Operator::IncCell => {
+                memory[data_loc] += 1;
+                code_loc += 1;
+            }
+            Operator::DecCell => {
+                memory[data_loc] -= 1;
+                code_loc += 1;
+            }
+            Operator::IncPtr => {
+                data_loc += 1;
+                code_loc += 1;
+            }
+            Operator::DecPtr => {
+                data_loc -= 1;
+                code_loc += 1;
+            }
+            Operator::Print => {
+                let character = char::from_u32(memory[data_loc] as u32);
+                match character {
+                    Some(c) => print!("{}", c),
+                    None => print!("<??>"),
+                }
+                code_loc += 1;
+            }
+            Operator::Read => {
+                memory[data_loc] = input_bytes[input_loc];
+                input_loc += 1;
+                code_loc += 1;
+            }
+            Operator::JumpZero => {
+                if memory[data_loc] == 0 {
+                    while tokens[code_loc] != Operator::Loop {
+                        code_loc += 1;
+                    }
+                } else {
+                    loop_loc = code_loc;
+                    code_loc += 1;
+                }
+            }
+            Operator::Loop => {
+                if memory[data_loc] == 0 {
+                    code_loc += 1;
+                } else {
+                    code_loc = loop_loc;
+                }
+            }
+        }
+    }
+    memory
+}
+
+fn printable_op(op: Operator) -> char {
+    match op {
+        Operator::IncCell => '+',
+        Operator::DecCell => '-',
+        Operator::IncPtr => '>',
+        Operator::DecPtr => '<',
+        Operator::Print => '.',
+        Operator::Read => ',',
+        Operator::JumpZero => '[',
+        Operator::Loop => ']',
+    }
 }
