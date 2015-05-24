@@ -30,7 +30,6 @@ fn main() {
     println!("Output:");
     let blah = parse(tokens, input);
     println!("");
-    println!("{}", blah.len());
 }
 
 fn parse_args(opts: Options, args: Vec<String>) -> (String, String) {
