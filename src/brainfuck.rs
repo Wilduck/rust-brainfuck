@@ -27,6 +27,7 @@ fn main() {
     println!("Running program: \n{}\n", source);
     println!("With input: \n{}\n", input);
     let tokens = tokenize(source);
+    println!("Output:");
     let blah = parse(tokens, input);
     println!("");
     println!("{}", blah.len());
@@ -79,17 +80,14 @@ fn tokenize(source: String) -> Vec<Operator> {
 
 fn parse(tokens: Vec<Operator>, input: String) -> [u8; 30000] {
     let instructions = tokens.len();
-    // let mut memory = std::iter::repeat(0).take(30000).collect::<Vec<u8>>();
     let mut memory: [u8; 30000] = [0; 30000];
     let input_bytes = input.as_bytes();
     let mut code_loc: usize = 0;
     let mut input_loc: usize = 0;
-    let mut loop_loc: usize = 0;
+    let mut loop_loc: Vec<usize> = Vec::new();
     let mut data_loc: usize = 0;
     while code_loc < instructions {
         let ref operator = tokens[code_loc];
-        // let cop_op = *operator.clone();
-        // println!("{}", printable_op(cop_op));
         match *operator {
             Operator::IncCell => {
                 memory[data_loc] += 1;
@@ -126,15 +124,19 @@ fn parse(tokens: Vec<Operator>, input: String) -> [u8; 30000] {
                         code_loc += 1;
                     }
                 } else {
-                    loop_loc = code_loc;
+                    loop_loc.push(code_loc);
                     code_loc += 1;
                 }
             }
             Operator::Loop => {
                 if memory[data_loc] == 0 {
+                    loop_loc.pop();
                     code_loc += 1;
                 } else {
-                    code_loc = loop_loc;
+                    code_loc = match loop_loc.pop() {
+                        Some(loc) => loc,
+                        None => code_loc + 1,
+                    }
                 }
             }
         }
