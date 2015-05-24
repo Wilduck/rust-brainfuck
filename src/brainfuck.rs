@@ -3,6 +3,9 @@ use getopts::Options;
 
 use std::env;
 use std::char;
+use std::io;
+use std::io::prelude::*;
+use std::str;
 
 #[derive(PartialEq)]
 enum Operator {
@@ -42,18 +45,33 @@ fn main() {
 }
 
 fn parse_args(opts: Options, args: Vec<String>) -> ParsedArgs {
+    // parse out everything we're interested in handling
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => { m }
         Err(f) => { panic!(f.to_string()) }
     };
+    let input_flag = matches.opt_str("i");
+
+    // Get the source code string
     let source = match matches.opt_str("s") {
         Some(s) => s,
         None => "".to_string(),
     };
-    let input = match matches.opt_str("i") {
+
+    // Get the input string, either from an arguement or stdin.
+    let input = match input_flag {
         Some(i) => i,
-        None => "".to_string(),
+        None => {
+            let stdin = io::stdin();
+            let mut buf: Vec<u8> = Vec::new();
+            let result = stdin.lock().read_to_end(&mut buf);
+            match result {
+                Ok(_) => str::from_utf8(&buf).unwrap().to_string(),
+                Err(_) => "".to_string(),
+            }
+        }
     };
+
     ParsedArgs {
         source: source,
         input: input,
