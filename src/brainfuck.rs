@@ -1,5 +1,6 @@
 extern crate getopts;
 use getopts::Options;
+
 use std::env;
 use std::char;
 
@@ -15,24 +16,32 @@ enum Operator {
     Loop,        // ]
 }
 
-enum Status {
-    Success,
-    Failure(String),
+struct ParsedArgs {
+    source: String,
+    input: String,
+    failure: Option<String>
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     let opts = create_options();
-    let (source, input) = parse_args(opts, args);
-    println!("Running program: \n{}\n", source);
-    println!("With input: \n{}\n", input);
-    let tokens = tokenize(source);
-    println!("Output:");
-    let blah = parse(tokens, input);
-    println!("");
+    let parsed_args = parse_args(opts, args);
+    match parsed_args.failure {
+        Some(failure_string) => {
+            println!("Invalid Arguments: {}", failure_string);
+        }
+        None => {
+            println!("Running program: \n{}\n", parsed_args.source);
+            println!("With input: \n{}\n", parsed_args.input);
+            let tokens = tokenize(parsed_args.source);
+            println!("Output:");
+            parse(tokens, parsed_args.input);
+            println!("");
+        }
+    }
 }
 
-fn parse_args(opts: Options, args: Vec<String>) -> (String, String) {
+fn parse_args(opts: Options, args: Vec<String>) -> ParsedArgs {
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => { m }
         Err(f) => { panic!(f.to_string()) }
@@ -45,7 +54,11 @@ fn parse_args(opts: Options, args: Vec<String>) -> (String, String) {
         Some(i) => i,
         None => "".to_string(),
     };
-    (source, input)
+    ParsedArgs {
+        source: source,
+        input: input,
+        failure: None,
+    }
 }
 
 fn create_options() -> (Options) {
@@ -141,17 +154,4 @@ fn parse(tokens: Vec<Operator>, input: String) -> [u8; 30000] {
         }
     }
     memory
-}
-
-fn printable_op(op: Operator) -> char {
-    match op {
-        Operator::IncCell => '+',
-        Operator::DecCell => '-',
-        Operator::IncPtr => '>',
-        Operator::DecPtr => '<',
-        Operator::Print => '.',
-        Operator::Read => ',',
-        Operator::JumpZero => '[',
-        Operator::Loop => ']',
-    }
 }
