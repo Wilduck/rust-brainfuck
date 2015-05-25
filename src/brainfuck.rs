@@ -161,8 +161,14 @@ fn parse(tokens: Vec<Operator>, input: String) -> [u8; 30000] {
                 code_loc += 1;
             }
             Operator::JumpZero => {
+                let mut depth_tracker = 0;
                 if memory[data_loc] == 0 {
-                    while tokens[code_loc] != Operator::Loop {
+                    while (tokens[code_loc] != Operator::Loop) | (depth_tracker != 0) {
+                        if tokens[code_loc] == Operator::JumpZero {
+                            depth_tracker += 1;
+                        } else if tokens[code_loc] == Operator::Loop {
+                            depth_tracker -= 1;
+                        }
                         code_loc += 1;
                     }
                 } else {
