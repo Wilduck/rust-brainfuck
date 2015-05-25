@@ -22,7 +22,8 @@ enum Operator {
 struct ParsedArgs {
     source: String,
     input: String,
-    failure: Option<String>
+    verbose: bool,
+    failure: Option<String>,
 }
 
 fn main() {
@@ -34,10 +35,12 @@ fn main() {
             println!("Invalid Arguments: {}", failure_string);
         }
         None => {
-            println!("Running program: \n{}\n", parsed_args.source);
-            println!("With input: \n{}\n", parsed_args.input);
+            if parsed_args.verbose {
+                println!("Running program: \n{}\n", parsed_args.source);
+                println!("With input: \n{}\n", parsed_args.input);
+                println!("Output:");
+            }
             let tokens = tokenize(parsed_args.source);
-            println!("Output:");
             parse(tokens, parsed_args.input);
             println!("");
         }
@@ -50,6 +53,7 @@ fn parse_args(opts: Options, args: Vec<String>) -> ParsedArgs {
         Ok(m) => { m }
         Err(f) => { panic!(f.to_string()) }
     };
+    let verbose = matches.opt_present("v");
     let input_flag = matches.opt_str("i");
 
     // Get the source code string
@@ -75,12 +79,14 @@ fn parse_args(opts: Options, args: Vec<String>) -> ParsedArgs {
     ParsedArgs {
         source: source,
         input: input,
+        verbose: verbose,
         failure: None,
     }
 }
 
 fn create_options() -> (Options) {
     let mut opts = Options::new();
+    opts.optflag("v", "verbose", "Print More Info");
     opts.optopt("s", "source", "Source string", "SOURCE");
     opts.optopt("i", "input", "Input string", "INPUT");
     opts
