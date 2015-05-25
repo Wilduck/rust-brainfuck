@@ -6,6 +6,7 @@ use std::char;
 use std::io;
 use std::io::prelude::*;
 use std::str;
+use std::fs::File;
 
 #[derive(PartialEq)]
 enum Operator {
@@ -23,18 +24,17 @@ struct ParsedArgs {
     source: String,
     input: String,
     verbose: bool,
-    failure: Option<String>,
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     let opts = create_options();
-    let parsed_args = parse_args(opts, args);
-    match parsed_args.failure {
-        Some(failure_string) => {
-            println!("Invalid Arguments: {}", failure_string);
+    let parsed_args_result = parse_args(opts, args);
+    match parsed_args_result {
+        Err(e) => {
+            println!("Invalid Arguments: {}", e);
         }
-        None => {
+        Ok(parsed_args) => {
             if parsed_args.verbose {
                 println!("Running program: \n{}\n", parsed_args.source);
                 println!("With input: \n{}\n", parsed_args.input);
@@ -47,7 +47,7 @@ fn main() {
     }
 }
 
-fn parse_args(opts: Options, args: Vec<String>) -> ParsedArgs {
+fn parse_args(opts: Options, args: Vec<String>) -> Result<ParsedArgs, std::io::Error> {
     // parse out everything we're interested in handling
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => { m }
@@ -55,14 +55,21 @@ fn parse_args(opts: Options, args: Vec<String>) -> ParsedArgs {
     };
     let verbose = matches.opt_present("v");
     let input_flag = matches.opt_str("i");
+    let source_flag = matches.opt_str("s");
 
     // Get the source code string
-    let source = match matches.opt_str("s") {
+    let source = match source_flag {
         Some(s) => s,
-        None => "".to_string(),
+        None => {
+            let first_arg = args[1].clone();
+            let mut source_file = try!(File::open(first_arg));
+            let mut source_string = String::new();
+            try!(source_file.read_to_string(&mut source_string));
+            source_string
+        }
     };
 
-    // Get the input string, either from an arguement or stdin.
+    // Get the input string, either from an argument or stdin.
     let input = match input_flag {
         Some(i) => i,
         None => {
@@ -76,12 +83,11 @@ fn parse_args(opts: Options, args: Vec<String>) -> ParsedArgs {
         }
     };
 
-    ParsedArgs {
+    Ok(ParsedArgs {
         source: source,
         input: input,
         verbose: verbose,
-        failure: None,
-    }
+    })
 }
 
 fn create_options() -> (Options) {
