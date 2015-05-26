@@ -1,10 +1,11 @@
 use std::char;
+use std::iter;
 
 use super::tokenize;
 
 
-struct State<MemType> {
-    memory: MemType,
+struct State {
+    memory: Vec<u8>,
     code_loc: usize,
     data_loc: usize,
     input_loc: usize,
@@ -13,9 +14,9 @@ struct State<MemType> {
 }
 
 
-pub fn interpret(tokens: Vec<tokenize::Operator>, input: String) -> [u8; 30000] {
+pub fn interpret(tokens: Vec<tokenize::Operator>, input: String) -> Vec<u8> {
     let mut state = State {
-        memory: [0; 30000],
+        memory: iter::repeat(0).take(30000).collect::<Vec<u8>>(),
         code_loc: 0,
         data_loc: 0,
         input_loc: 0,
@@ -28,8 +29,7 @@ pub fn interpret(tokens: Vec<tokenize::Operator>, input: String) -> [u8; 30000] 
         let ref operator = tokens[state.code_loc];
         match *operator {
             tokenize::Operator::IncCell => {
-                state.memory[state.data_loc] += 1;
-                state.code_loc += 1;
+                inc_cell(&mut state);
             }
             tokenize::Operator::DecCell => {
                 state.memory[state.data_loc] -= 1;
@@ -87,4 +87,10 @@ pub fn interpret(tokens: Vec<tokenize::Operator>, input: String) -> [u8; 30000] 
         }
     }
     state.memory
+}
+
+
+fn inc_cell(state: &mut State) {
+    state.memory[state.data_loc] += 1;
+    state.code_loc += 1;
 }
