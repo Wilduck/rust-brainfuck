@@ -3,18 +3,8 @@ use std::env;
 
 extern crate brainfuck;
 use brainfuck::argparse;
+use brainfuck::tokenize;
 
-#[derive(PartialEq)]
-enum Operator {
-    IncCell,     // +
-    DecCell,     // -
-    IncPtr,      // >
-    DecPtr,      // <
-    Print,       // .
-    Read,        // ,
-    JumpZero,    // [
-    Loop,        // ]
-}
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -30,7 +20,7 @@ fn main() {
                 println!("With input: \n{}\n", parsed_args.input);
                 println!("Output:");
             }
-            let tokens = tokenize(parsed_args.source);
+            let tokens = tokenize::tokenize(parsed_args.source);
             parse(tokens, parsed_args.input);
             println!("");
         }
@@ -38,29 +28,7 @@ fn main() {
 }
 
 
-fn tokenize(source: String) -> Vec<Operator> {
-    let mut tokens: Vec<Operator> = Vec::new();
-    for c in source.chars() {
-        let o: Option<Operator> = match c {
-            '+' => Some(Operator::IncCell),
-            '-' => Some(Operator::DecCell),
-            '>' => Some(Operator::IncPtr),
-            '<' => Some(Operator::DecPtr),
-            '.' => Some(Operator::Print),
-            ',' => Some(Operator::Read),
-            '[' => Some(Operator::JumpZero),
-            ']' => Some(Operator::Loop),
-            _ => None
-        };
-        match o {
-            Some(operator) => tokens.push(operator),
-            None => {}
-        };
-    };
-    tokens
-}
-
-fn parse(tokens: Vec<Operator>, input: String) -> [u8; 30000] {
+fn parse(tokens: Vec<tokenize::Operator>, input: String) -> [u8; 30000] {
     let instructions = tokens.len();
     let mut memory: [u8; 30000] = [0; 30000];
     let input_bytes = input.as_bytes();
@@ -71,23 +39,23 @@ fn parse(tokens: Vec<Operator>, input: String) -> [u8; 30000] {
     while code_loc < instructions {
         let ref operator = tokens[code_loc];
         match *operator {
-            Operator::IncCell => {
+            tokenize::Operator::IncCell => {
                 memory[data_loc] += 1;
                 code_loc += 1;
             }
-            Operator::DecCell => {
+            tokenize::Operator::DecCell => {
                 memory[data_loc] -= 1;
                 code_loc += 1;
             }
-            Operator::IncPtr => {
+            tokenize::Operator::IncPtr => {
                 data_loc += 1;
                 code_loc += 1;
             }
-            Operator::DecPtr => {
+            tokenize::Operator::DecPtr => {
                 data_loc -= 1;
                 code_loc += 1;
             }
-            Operator::Print => {
+            tokenize::Operator::Print => {
                 let character = char::from_u32(memory[data_loc] as u32);
                 match character {
                     Some(c) => print!("{}", c),
@@ -95,18 +63,19 @@ fn parse(tokens: Vec<Operator>, input: String) -> [u8; 30000] {
                 }
                 code_loc += 1;
             }
-            Operator::Read => {
+            tokenize::Operator::Read => {
                 memory[data_loc] = input_bytes[input_loc];
                 input_loc += 1;
                 code_loc += 1;
             }
-            Operator::JumpZero => {
+            tokenize::Operator::JumpZero => {
                 let mut depth_tracker = 0;
                 if memory[data_loc] == 0 {
-                    while (tokens[code_loc] != Operator::Loop) | (depth_tracker != 0) {
-                        if tokens[code_loc] == Operator::JumpZero {
+                    while (tokens[code_loc] != tokenize::Operator::Loop) 
+                        | (depth_tracker != 0) {
+                        if tokens[code_loc] == tokenize::Operator::JumpZero {
                             depth_tracker += 1;
-                        } else if tokens[code_loc] == Operator::Loop {
+                        } else if tokens[code_loc] == tokenize::Operator::Loop {
                             depth_tracker -= 1;
                         }
                         code_loc += 1;
@@ -116,7 +85,7 @@ fn parse(tokens: Vec<Operator>, input: String) -> [u8; 30000] {
                     code_loc += 1;
                 }
             }
-            Operator::Loop => {
+            tokenize::Operator::Loop => {
                 if memory[data_loc] == 0 {
                     loop_loc.pop();
                     code_loc += 1;
