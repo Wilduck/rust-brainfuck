@@ -1,15 +1,15 @@
 use std::env;
 
 extern crate brainfuck;
-use brainfuck::argparse;
+use brainfuck::argument;
 use brainfuck::interpreter;
 use brainfuck::tokenize;
 
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let opts = argparse::create_options();
-    let parsed_args_result = argparse::parse_args(opts, args);
+    let opts = argument::create_options();
+    let parsed_args_result = argument::parse_args(opts, args);
     match parsed_args_result {
         Err(e) => {
             println!("Invalid Arguments: {}", e);
