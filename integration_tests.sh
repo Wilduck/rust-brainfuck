@@ -42,5 +42,7 @@ run () {
 run "command-line" "$BRAINFUCK -i 'hi' -s ',.,.'" 'hi'
 run "no-input" "$BRAINFUCK -i '' -s ',,,'" ''
 run "file-processing" "$BRAINFUCK brainfuck_source/loops.bf -i ''" 'E'
+run "std-in-processing" "printf hi | $BRAINFUCK -s ',.,.'" 'hi'
+run "empty-loop" "$BRAINFUCK brainfuck_source/empty_loop.bf -i ''" ''
 
 rm $ERR_FILE
