@@ -71,7 +71,11 @@ fn print_cell(state: &mut State) {
 }
 
 fn read_input(state: &mut State, input_bytes: &[u8]) {
-    state.memory[state.data_loc] = input_bytes[state.input_loc];
+    if state.input_loc < input_bytes.len() {
+        state.memory[state.data_loc] = input_bytes[state.input_loc];
+    } else {
+        state.memory[state.data_loc] = 0;
+    }
     state.input_loc += 1;
     state.code_loc += 1;
 }

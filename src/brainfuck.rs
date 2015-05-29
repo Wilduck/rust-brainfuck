@@ -22,7 +22,9 @@ fn main() {
             }
             let tokens = tokenize::tokenize(parsed_args.source);
             interpreter::interpret(tokens, parsed_args.input);
-            println!("");
+            if parsed_args.verbose {
+                println!("");
+            }
         }
     }
 }
