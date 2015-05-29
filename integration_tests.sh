@@ -56,7 +56,10 @@ echo ""
 echo "Behavior"
 echo "--------"
 run "no-input" "$BRAINFUCK -i '' -s ',,,'" ''
+run "input-overrides-existing-value" "$BRAINFUCK -i 'A' -s '+++++,.'" 'A'
 run "null-print" "$BRAINFUCK -i '' -s '++,.'" ''
+run "immediate-dec-pointer" "$BRAINFUCK -i '' -s '<'" ''
+run "fill-ones-forever" "$BRAINFUCK -i '' -s '+[>+]'" ''
 echo ""
 
 # Programs
