@@ -24,8 +24,8 @@ fail () {
 }
 
 run () {
-    cmd=$2
     name=$1
+    cmd=$2
     expected=$3
     out=$(eval $cmd 2> "$ERR_FILE")
     err=$(cat "$ERR_FILE")
@@ -41,6 +41,6 @@ run () {
 # Tests
 run "command-line" "$BRAINFUCK -i 'hi' -s ',.,.'" 'hi'
 run "no-input" "$BRAINFUCK -i '' -s ',,,'" ''
-
+run "file-processing" "$BRAINFUCK brainfuck_source/loops.bf -i ''" 'E'
 
 rm $ERR_FILE
