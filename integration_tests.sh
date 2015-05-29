@@ -58,6 +58,7 @@ echo "--------"
 run "no-input" "$BRAINFUCK -i '' -s ',,,'" ''
 run "input-overrides-existing-value" "$BRAINFUCK -i 'A' -s '+++++,.'" 'A'
 run "null-print" "$BRAINFUCK -i '' -s '++,.'" ''
+run "empty-loop" "$BRAINFUCK -i '' -s '[]'" ''
 run "immediate-dec-pointer" "$BRAINFUCK -i '' -s '<'" ''
 run "fill-ones-forever" "$BRAINFUCK -i '' -s '+[>+]'" ''
 echo ""
@@ -66,9 +67,9 @@ echo ""
 ##########
 echo "Programs"
 echo "--------"
-run "empty-loop-program" "$BRAINFUCK brainfuck_source/empty_loop.bf -i ''" ''
 run "copy-program" "$BRAINFUCK brainfuck_source/echo.bf -i 'echo'" 'echo'
 run "reverse-program" "$BRAINFUCK brainfuck_source/reverse.bf -i 'echo'" 'ohce'
+run "binary-to-ascii" "$BRAINFUCK brainfuck_source/binary-to-ascii.bf -i '0110100001101001'" 'hi'
 echo ""
 
 rm $ERR_FILE
