@@ -28,30 +28,14 @@ pub fn interpret(tokens: Vec<tokenize::Operator>, input: String) -> Vec<u8> {
     while state.code_loc < instructions {
         let ref operator = tokens[state.code_loc];
         match *operator {
-            tokenize::Operator::IncCell => {
-                inc_cell(&mut state);
-            }
-            tokenize::Operator::DecCell => {
-                dec_cell(&mut state);
-            }
-            tokenize::Operator::IncPtr => {
-                inc_ptr(&mut state);
-            }
-            tokenize::Operator::DecPtr => {
-                dec_ptr(&mut state);
-            }
-            tokenize::Operator::Print => {
-                print_cell(&mut state);
-            }
-            tokenize::Operator::Read => {
-                read_input(&mut state, input_bytes);
-            }
-            tokenize::Operator::JumpZero => {
-                jump_zero(&mut state, &tokens);
-            }
-            tokenize::Operator::Loop => {
-                loop_jump(&mut state);
-            }
+            tokenize::Operator::IncCell  => inc_cell(&mut state),
+            tokenize::Operator::DecCell  => dec_cell(&mut state),
+            tokenize::Operator::IncPtr   => inc_ptr(&mut state),
+            tokenize::Operator::DecPtr   => dec_ptr(&mut state),
+            tokenize::Operator::Print    => print_cell(&mut state),
+            tokenize::Operator::Read     => read_input(&mut state, input_bytes),
+            tokenize::Operator::JumpZero => jump_zero(&mut state, &tokens),
+            tokenize::Operator::Loop     => loop_jump(&mut state),
         }
     }
     state.memory
