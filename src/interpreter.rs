@@ -32,8 +32,7 @@ pub fn interpret(tokens: Vec<tokenize::Operator>, input: String) -> Vec<u8> {
                 inc_cell(&mut state);
             }
             tokenize::Operator::DecCell => {
-                state.memory[state.data_loc] -= 1;
-                state.code_loc += 1;
+                dec_cell(&mut state);
             }
             tokenize::Operator::IncPtr => {
                 state.data_loc += 1;
@@ -92,5 +91,11 @@ pub fn interpret(tokens: Vec<tokenize::Operator>, input: String) -> Vec<u8> {
 
 fn inc_cell(state: &mut State) {
     state.memory[state.data_loc] += 1;
+    state.code_loc += 1;
+}
+
+
+fn dec_cell(state: &mut State) {
+    state.memory[state.data_loc] -= 1;
     state.code_loc += 1;
 }
