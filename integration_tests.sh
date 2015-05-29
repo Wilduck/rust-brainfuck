@@ -43,6 +43,8 @@ run "command-line" "$BRAINFUCK -i 'hi' -s ',.,.'" 'hi'
 run "no-input" "$BRAINFUCK -i '' -s ',,,'" ''
 run "file-processing" "$BRAINFUCK brainfuck_source/loops.bf -i ''" 'E'
 run "std-in-processing" "printf hi | $BRAINFUCK -s ',.,.'" 'hi'
-run "empty-loop" "$BRAINFUCK brainfuck_source/empty_loop.bf -i ''" ''
+run "empty-loop-program" "$BRAINFUCK brainfuck_source/empty_loop.bf -i ''" ''
+run "copy-program" "$BRAINFUCK brainfuck_source/echo.bf -i 'echo'" 'echo'
+run "reverse-program" "$BRAINFUCK brainfuck_source/reverse.bf -i 'echo'" 'ohce'
 
 rm $ERR_FILE
