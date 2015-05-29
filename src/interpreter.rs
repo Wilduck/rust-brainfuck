@@ -35,67 +35,88 @@ pub fn interpret(tokens: Vec<tokenize::Operator>, input: String) -> Vec<u8> {
                 dec_cell(&mut state);
             }
             tokenize::Operator::IncPtr => {
-                state.data_loc += 1;
-                state.code_loc += 1;
+                inc_ptr(&mut state);
             }
             tokenize::Operator::DecPtr => {
-                state.data_loc -= 1;
-                state.code_loc += 1;
+                dec_ptr(&mut state);
             }
             tokenize::Operator::Print => {
-                let character = char::from_u32(state.memory[state.data_loc] as u32);
-                match character {
-                    Some(c) => print!("{}", c),
-                    None => print!("<??>"),
-                }
-                state.code_loc += 1;
+                print_cell(&mut state);
             }
             tokenize::Operator::Read => {
-                state.memory[state.data_loc] = input_bytes[state.input_loc];
-                state.input_loc += 1;
-                state.code_loc += 1;
+                read_input(&mut state, input_bytes);
             }
             tokenize::Operator::JumpZero => {
-                state.loop_depth = 0;
-                if state.memory[state.data_loc] == 0 {
-                    while (tokens[state.code_loc] != tokenize::Operator::Loop)
-                        | (state.loop_depth != 0) {
-                        if tokens[state.code_loc] == tokenize::Operator::JumpZero {
-                            state.loop_depth += 1;
-                        } else if tokens[state.code_loc] == tokenize::Operator::Loop {
-                            state.loop_depth -= 1;
-                        }
-                        state.code_loc += 1;
-                    }
-                } else {
-                    state.loop_loc.push(state.code_loc);
-                    state.code_loc += 1;
-                }
+                jump_zero(&mut state, &tokens);
             }
             tokenize::Operator::Loop => {
-                if state.memory[state.data_loc] == 0 {
-                    state.loop_loc.pop();
-                    state.code_loc += 1;
-                } else {
-                    state.code_loc = match state.loop_loc.pop() {
-                        Some(loc) => loc,
-                        None => state.code_loc + 1,
-                    }
-                }
+                loop_jump(&mut state);
             }
         }
     }
     state.memory
 }
 
-
 fn inc_cell(state: &mut State) {
     state.memory[state.data_loc] += 1;
     state.code_loc += 1;
 }
 
-
 fn dec_cell(state: &mut State) {
     state.memory[state.data_loc] -= 1;
     state.code_loc += 1;
+}
+
+fn inc_ptr(state: &mut State) {
+    state.data_loc += 1;
+    state.code_loc += 1;
+}
+
+fn dec_ptr(state: &mut State) {
+    state.data_loc -= 1;
+    state.code_loc += 1;
+}
+
+fn print_cell(state: &mut State) {
+    let character = char::from_u32(state.memory[state.data_loc] as u32);
+    match character {
+        Some(c) => print!("{}", c),
+        None => print!("<??>"),
+    }
+    state.code_loc += 1;
+}
+
+fn read_input(state: &mut State, input_bytes: &[u8]) {
+    state.memory[state.data_loc] = input_bytes[state.input_loc];
+    state.input_loc += 1;
+    state.code_loc += 1;
+}
+
+fn jump_zero(state: &mut State, tokens: &Vec<tokenize::Operator>) {
+    state.loop_depth = 0;
+    if state.memory[state.data_loc] == 0 {
+        while (tokens[state.code_loc] != tokenize::Operator::Loop) | (state.loop_depth != 0) {
+            if tokens[state.code_loc] == tokenize::Operator::JumpZero {
+                state.loop_depth += 1;
+            } else if tokens[state.code_loc] == tokenize::Operator::Loop {
+                state.loop_depth -= 1;
+            }
+            state.code_loc += 1;
+        }
+    } else {
+        state.loop_loc.push(state.code_loc);
+        state.code_loc += 1;
+    }
+}
+
+fn loop_jump(state: &mut State) {
+    if state.memory[state.data_loc] == 0 {
+        state.loop_loc.pop();
+        state.code_loc += 1;
+    } else {
+        state.code_loc = match state.loop_loc.pop() {
+            Some(loc) => loc,
+            None => state.code_loc + 1,
+        }
+    }
 }
