@@ -61,6 +61,7 @@ run "null-print" "$BRAINFUCK -i '' -s '++,.'" ''
 run "empty-loop" "$BRAINFUCK -i '' -s '[]'" ''
 run "immediate-dec-pointer" "$BRAINFUCK -i '' -s '<'" ''
 run "fill-ones-forever" "$BRAINFUCK -i '' -s '+[>+]'" ''
+run "print-216-code-point" "$BRAINFUCK -i '' -s '++++++[>++++++[>++++++<-]<-]>>.'" 'Ø'
 echo ""
 
 # Programs
