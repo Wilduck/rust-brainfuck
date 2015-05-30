@@ -62,6 +62,8 @@ run "empty-loop" "$BRAINFUCK -i '' -s '[]'" ''
 run "immediate-dec-pointer" "$BRAINFUCK -i '' -s '<'" ''
 run "fill-ones-forever" "$BRAINFUCK -i '' -s '+[>+]'" ''
 run "print-216-code-point" "$BRAINFUCK -i '' -s '++++++[>++++++[>++++++<-]<-]>>.'" 'Ø'
+run "overflow" "$BRAINFUCK -i '' -s '++++[>++++[>++++[>++++<-]<-]<-]>>>+'" ''
+run "underflow" "$BRAINFUCK -i '' -s '-'" ''
 echo ""
 
 # Programs
