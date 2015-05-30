@@ -81,17 +81,20 @@ fn read_input(state: &mut State, input_bytes: &[u8]) {
 }
 
 fn jump_zero(state: &mut State, tokens: &Vec<tokenize::Operator>) {
-    state.loop_depth = 0;
-    if state.memory[state.data_loc] == 0 {
+    state.loop_depth = 1;
+    let memory_value = state.memory[state.data_loc];
+    if memory_value == 0 {
+        // Jump
         while (tokens[state.code_loc] != tokenize::Operator::Loop) | (state.loop_depth != 0) {
+            state.code_loc += 1;
             if tokens[state.code_loc] == tokenize::Operator::JumpZero {
                 state.loop_depth += 1;
             } else if tokens[state.code_loc] == tokenize::Operator::Loop {
                 state.loop_depth -= 1;
             }
-            state.code_loc += 1;
         }
     } else {
+        // Don't jump
         state.loop_loc.push(state.code_loc);
         state.code_loc += 1;
     }
