@@ -4,24 +4,26 @@ use std::iter;
 use super::tokenize;
 
 
-struct State {
-    memory: Vec<u8>,
-    code_loc: usize,
-    data_loc: usize,
-    input_loc: usize,
-    loop_depth: usize,
-    loop_loc: Vec<usize>,
+pub struct State {
+    pub memory: Vec<u8>,
+    pub code_loc: usize,
+    pub data_loc: usize,
+    pub input_loc: usize,
+    pub loop_depth: usize,
+    pub loop_loc: Vec<usize>,
+    pub exit: Option<String>,
 }
 
 
-pub fn interpret(tokens: Vec<tokenize::Operator>, input: String) -> Vec<u8> {
+pub fn interpret(tokens: Vec<tokenize::Operator>, input: String) -> State {
     let mut state = State {
         memory: iter::repeat(0).take(30000).collect::<Vec<u8>>(),
         code_loc: 0,
         data_loc: 0,
         input_loc: 0,
         loop_depth: 0,
-        loop_loc: Vec::new()
+        loop_loc: Vec::new(),
+        exit: None,
     };
     let instructions = tokens.len();
     let input_bytes = input.as_bytes();
@@ -38,7 +40,7 @@ pub fn interpret(tokens: Vec<tokenize::Operator>, input: String) -> Vec<u8> {
             tokenize::Operator::Loop     => loop_jump(&mut state),
         }
     }
-    state.memory
+    state
 }
 
 fn inc_cell(state: &mut State) {
