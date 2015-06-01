@@ -10,12 +10,12 @@ use self::getopts::Options;
 pub struct ParsedArgs {
     pub source: String,
     pub input: String,
-    pub verbose: bool,
+    pub verbose: u8,
 }
 
 pub fn create_options() -> (Options) {
     let mut opts = Options::new();
-    opts.optflag("v", "verbose", "Print More Info");
+    opts.optflagopt("v", "verbose", "Print More Info", "VERBOSITY");
     opts.optopt("s", "source", "Source string", "SOURCE");
     opts.optopt("i", "input", "Input string", "INPUT");
     opts
@@ -27,9 +27,22 @@ pub fn parse_args(opts: Options, args: Vec<String>) -> Result<ParsedArgs, io::Er
         Ok(m) => { m }
         Err(f) => { panic!(f.to_string()) }
     };
-    let verbose = matches.opt_present("v");
+    let verbose = matches.opt_default("v", "0");
     let input_flag = matches.opt_str("i");
     let source_flag = matches.opt_str("s");
+
+    // Get the verbosity as an integer
+    let verbosity = match verbose {
+        Some(s) => {
+            match s.as_ref() {
+                "0" => 0,
+                "1" => 1,
+                "2" => 2,
+                _ => 0,
+            }
+        }
+        None => { 0 }
+    };
 
     // Get the source code string
     let source = match source_flag {
@@ -60,6 +73,6 @@ pub fn parse_args(opts: Options, args: Vec<String>) -> Result<ParsedArgs, io::Er
     Ok(ParsedArgs {
         source: source,
         input: input,
-        verbose: verbose,
+        verbose: verbosity,
     })
 }
