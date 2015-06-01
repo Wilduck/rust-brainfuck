@@ -73,6 +73,7 @@ echo "--------"
 run "copy-program" "$BRAINFUCK brainfuck_source/echo.bf -i 'echo'" 'echo'
 run "reverse-program" "$BRAINFUCK brainfuck_source/reverse.bf -i 'echo'" 'ohce'
 run "binary-to-ascii" "$BRAINFUCK brainfuck_source/binary-to-ascii.bf -i '0110100001101001'" 'hi'
+run "hello-world" "$BRAINFUCK brainfuck_source/hello_world.bf -i ''" 'Hello World!'
 echo ""
 
 rm $ERR_FILE
