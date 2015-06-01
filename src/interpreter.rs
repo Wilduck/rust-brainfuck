@@ -27,7 +27,7 @@ pub fn interpret(tokens: Vec<tokenize::Operator>, input: String) -> State {
     };
     let instructions = tokens.len();
     let input_bytes = input.as_bytes();
-    while state.code_loc < instructions {
+    while (state.code_loc < instructions) & (state.exit == None) {
         let ref operator = tokens[state.code_loc];
         match *operator {
             tokenize::Operator::IncCell  => inc_cell(&mut state),
@@ -44,23 +44,47 @@ pub fn interpret(tokens: Vec<tokenize::Operator>, input: String) -> State {
 }
 
 fn inc_cell(state: &mut State) {
-    state.memory[state.data_loc] += 1;
-    state.code_loc += 1;
+    let x = state.memory[state.data_loc].checked_add(1);
+    match x {
+        Some(val) => {
+            state.memory[state.data_loc] = val;
+        }
+        None => {
+            state.exit = Some("Integer Overflow".to_string());
+        }
+    };
+    state.code_loc += 1
 }
 
 fn dec_cell(state: &mut State) {
-    state.memory[state.data_loc] -= 1;
+    let x = state.memory[state.data_loc].checked_sub(1);
+    match x {
+        Some(val) => {
+            state.memory[state.data_loc] = val;
+        }
+        None => {
+            state.exit = Some("Integer Underflow".to_string());
+        }
+    };
     state.code_loc += 1;
 }
 
 fn inc_ptr(state: &mut State) {
-    state.data_loc += 1;
-    state.code_loc += 1;
+    if state.data_loc == state.memory.len() - 1 {
+        state.exit = Some("Out of bounds (overflow)".to_string());
+    } else {
+        state.data_loc += 1;
+        state.code_loc += 1;
+    }
 }
 
 fn dec_ptr(state: &mut State) {
-    state.data_loc -= 1;
-    state.code_loc += 1;
+    if state.data_loc == 0 {
+        state.exit = Some("Out of bounds (underflow)".to_string());
+    } else {
+        state.data_loc -= 1;
+        state.code_loc += 1;
+    }
 }
 
 fn print_cell(state: &mut State) {
