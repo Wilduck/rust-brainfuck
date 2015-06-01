@@ -28,7 +28,7 @@ fn main() {
             }
             if parsed_args.verbose >= 1 {
                 match final_state.exit {
-                    Some(err) => { println!("\nErrors: \n{}", err) }
+                    Some(err) => { println!("\nErrors:\n{}", err) }
                     None => { }
                 }
             }
