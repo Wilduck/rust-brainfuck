@@ -11,7 +11,7 @@ pub enum Operator {
 }
 
 
-pub fn tokenize(source: String) -> Vec<Operator> {
+pub fn tokenize(source: &String) -> Vec<Operator> {
     let mut tokens: Vec<Operator> = Vec::new();
     for c in source.chars() {
         let o: Option<Operator> = match c {

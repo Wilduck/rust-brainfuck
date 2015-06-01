@@ -6,6 +6,7 @@ use super::tokenize;
 
 pub struct State {
     pub memory: Vec<u8>,
+    pub output: Vec<char>,
     pub code_loc: usize,
     pub data_loc: usize,
     pub input_loc: usize,
@@ -15,9 +16,10 @@ pub struct State {
 }
 
 
-pub fn interpret(tokens: Vec<tokenize::Operator>, input: String) -> State {
+pub fn interpret(tokens: Vec<tokenize::Operator>, input: &String) -> State {
     let mut state = State {
         memory: iter::repeat(0).take(30000).collect::<Vec<u8>>(),
+        output: Vec::new(),
         code_loc: 0,
         data_loc: 0,
         input_loc: 0,
@@ -90,8 +92,10 @@ fn dec_ptr(state: &mut State) {
 fn print_cell(state: &mut State) {
     let character = char::from_u32(state.memory[state.data_loc] as u32);
     match character {
-        Some(c) => print!("{}", c),
-        None => print!("<??>"),
+        Some(c) => {
+            state.output.push(c);
+        },
+        None => { },
     }
     state.code_loc += 1;
 }
