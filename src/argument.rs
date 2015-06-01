@@ -38,6 +38,7 @@ pub fn parse_args(opts: Options, args: Vec<String>) -> Result<ParsedArgs, io::Er
                 "0" => 0,
                 "1" => 1,
                 "2" => 2,
+                "3" => 3,
                 _ => 0,
             }
         }
